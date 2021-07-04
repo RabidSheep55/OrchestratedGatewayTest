@@ -1,0 +1,24 @@
+services:
+  gateway:
+    # Build from Dockerfile
+    image: test-gateway
+    build: ./gateway
+    ports:
+      - 8888:8888 # Communication from the outside
+    networks:
+      - algorithms
+
+  simpleMatrixInvert:
+    # Build from Dockerfile
+    image: simple-matrix-invert
+    build: ./algorithms/simpleMatrixInvert
+
+    # For debugging only, shouldn't need to expose algorithms in production
+    ports:
+      - 8000:8888
+    networks:
+      algorithms:
+
+networks:
+  # Allows inner connections between gateway and algorithm functions
+  algorithms:
