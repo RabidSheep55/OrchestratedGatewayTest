@@ -41,13 +41,13 @@ def get_algorithm():
     body = request.get_json()
 
     # Security checks
-    if "prev_response" not in body:
-        return jsonify({"error": "prev_response was not supplied"}), 400
+    if "payload" not in body:
+        return jsonify({"error": "payload was not supplied"}), 400
 
     # Probably validate the 'prev_response' against a schema here
 
     # Actually carry out the algorithm
-    answer = algorithm(body['prev_response'])
+    answer = algorithm(body['payload'][0])
 
     return jsonify({"answer": answer, "moredata": "here!"})
 

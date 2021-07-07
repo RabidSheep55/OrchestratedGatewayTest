@@ -4,7 +4,9 @@ Need to have more robust error handling, schema verifications etc...
 '''
 
 from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
 from requests import get, exceptions
+import random
 
 # Grading function -> it's access point, would probably be in a database somewhere
 FUNCTION_ADDRS = {
@@ -29,7 +31,7 @@ def grade_response(block):
     else:
         algorithm_addr = f"http://{block['algorithmFunction']}:8888/algorithm"
         payload = {
-            "prev_response": block["prev_response"],
+            "payload": block["requirements"],
         }
 
         raw = get(algorithm_addr, json=payload, headers={"Content-Type": "application/json"})
@@ -54,6 +56,8 @@ def grade_response(block):
 
 #### API SETUP
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Access-Control-Allow-Origin'
 
 '''
 MAIN ENDPOINT: requires a json body
@@ -61,7 +65,7 @@ MAIN ENDPOINT: requires a json body
     "responses": <list of responses>
 }
 '''
-@app.route("/grade")
+@app.route("/grade", methods = ['POST', 'GET'])
 def main_grade_route():
     try:
         body = request.get_json()
@@ -85,8 +89,14 @@ def main_grade_route():
 def home():
     return "Welcome to the grading api gateway! Send in Response objects for grading..."
 
+# Give back a random response (for testing unregisterd res areas)
+@app.route('/random', methods = ['POST', 'GET'])
+def random_route():
+    rand = random.getrandbits(1)
+    return jsonify({"grades": [{"isCorrect": bool(rand)}]})
+
 # Testing/debug route
-@app.route("/testing")
+@app.route("/testing", methods = ['POST', 'GET'])
 def testing():
     try:
         body = request.get_json()
